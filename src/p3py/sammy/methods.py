@@ -67,3 +67,72 @@ def method1(r, dr, n, dn, verbose=False):
 
     return P_prime, M_prime
 
+def method2(r, dr, n, dn, verbose=False):
+    """ Function to calculate the Method 2 solution
+    
+    Parameters
+    ----------
+    r : list or np.array
+        measured data points
+
+    dr : list or np.array
+        uncertainty on measured data points
+
+    n : float
+        normalization constant value
+
+    dn : float
+        normalization constant uncertainty
+
+    verbose: bool, optional, default: False
+        whether or not to print the parameters and their
+        uncertainties
+
+    Returns
+    -------
+    np.array 
+        Fitted parameter values
+
+    np.array
+        Fitting parameter covariance matrix
+    
+    """
+
+    # in this case, the D values are the individual normalized
+    # data points
+
+    # set up the D and V matrices
+    D = np.array([[r[0]/n],[r[1]/n]])
+
+    # V is given in the manual Eq.(IV D.5)
+    dr_sq = np.array(dr)**2
+    n_rel = dn**2/n**2
+    V = np.array([
+        [dr_sq[0]/n**2 + (n_rel)*D[0,0]**2, n_rel*D[0,0]*D[1,0]],
+        [n_rel*D[0,0]*D[1,0], dr_sq[1]/n**2 + (n_rel)*D[1,0]**2]
+    ])
+    
+    # the prior X is the GLS estimate
+    X,_ = get_gls_estimate(D, V)
+
+    # the theoretical values are T = X, since X now 
+    # incorporates n
+    T = np.array([[X],[X]])
+
+    # unc on the averaged X is assumed to be inifinite to 
+    # allow full-least-squares calculation
+    M_inv = np.zeros((1,1))
+
+    # sensitivy matrix
+    G = np.array([[1],[1]])
+
+    # prior parameter is X
+    P = np.array([X])
+
+    # solve with M+W schema
+    P_prime, M_prime = calc_m_plus_w(P,M_inv,D,V,T,G)
+
+    if verbose:
+        print_parameters(P_prime, M_prime)
+
+    return P_prime, M_prime
