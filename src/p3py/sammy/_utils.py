@@ -35,6 +35,11 @@ def calc_m_plus_w(P,M_inv,D,V,T,G, verbose=False):
 
     np.array
         Posterior parameter cov matrix
+
+    Raises
+    ------
+    numpy will crash if the array sizes are not compatible. #TODO: add
+    specific tests for this with useful messages.
     
     Notes
     -----
@@ -60,3 +65,25 @@ def calc_m_plus_w(P,M_inv,D,V,T,G, verbose=False):
 
     # return posterior values
     return P_prime, M_prime
+
+
+def print_parameters(P, M):
+    """ Function to pretty print the parameters and their unc. The
+    values are rounded to 4 decimals for ease of comparison with
+    the SAMMY manual example. 
+    
+    Parameters
+    ---------
+    P : np.array
+        Column vector of parameters
+
+    M : np.array
+        Parameter covariance matrix
+
+    Returns
+    -------
+    None, just prints to screen
+    """
+
+    for z, dz_sq in zip(P, np.diag(M)):
+        print(f"\n{np.around(z[0],4)} +/- {np.around(np.sqrt(dz_sq),4)}")
