@@ -146,13 +146,13 @@ def method2(r, dr, n, dn, verbose=False, sens_method='exp', counts_method='exp')
         # are based on the "true" values - so they end up equally
         # weighted 
         X = np.mean(D)
-        
+
         V = np.array([
             [X/n + (n_rel)*X**2, n_rel*X**2],
             [n_rel*X**2, X/n + (n_rel)*X**2]
         ])
     else:
-        raise NameError(f"Unknown sens_method value {sens_method}. Use exp or theo")
+        raise NameError(f"Unknown sens_method value {sens_method} or counts_method value {counts_method}. Use exp or theo for each")
 
     # the theoretical values are T = X, since X now 
     # incorporates n
