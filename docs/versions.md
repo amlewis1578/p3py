@@ -1,2 +1,3 @@
 - **0**
     - `0.1.0` - basic GLS equations
+    - `0.2.0` - basic SAMMY method equations
