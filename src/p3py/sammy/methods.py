@@ -67,7 +67,7 @@ def method1(r, dr, n, dn, verbose=False):
 
     return P_prime, M_prime
 
-def method2(r, dr, n, dn, verbose=False, sens_method='exp'):
+def method2(r, dr, n, dn, verbose=False, sens_method='exp', counts_method='exp'):
     """ Function to calculate the Method 2 solution
     
     Parameters
@@ -93,6 +93,13 @@ def method2(r, dr, n, dn, verbose=False, sens_method='exp'):
         values ("exp") or by theoretical values ("theo"). For 
         Method 2, use the default "exp". For Method 2a or 2b,
         use "theo"
+
+    counts_method: str, optional, default: exp
+        how to calculate the counting unc - by experimental
+        values ("exp") or by theoretical values ("theo"). For 
+        Method 2 or 2a use the default "exp". For Method 2b,
+        use "theo"
+
 
     Returns
     -------
@@ -126,10 +133,23 @@ def method2(r, dr, n, dn, verbose=False, sens_method='exp'):
             [dr_sq[0]/n**2 + (n_rel)*D[0,0]**2, n_rel*D[0,0]*D[1,0]],
             [n_rel*D[0,0]*D[1,0], dr_sq[1]/n**2 + (n_rel)*D[1,0]**2]
         ])
-    elif sens_method == 'theo':
+    # method 2a
+    elif sens_method == 'theo' and counts_method == 'exp':
         V = np.array([
-            [dr_sq[0]/n**2 + (n_rel)*X**2, n_rel*X*X],
-            [n_rel*X*X, dr_sq[1]/n**2 + (n_rel)*X**2]
+            [dr_sq[0]/n**2 + (n_rel)*X**2, n_rel*X**2],
+            [n_rel*X**2, dr_sq[1]/n**2 + (n_rel)*X**2]
+        ])
+    # method 2b
+    elif sens_method == 'theo' and counts_method == 'theo':
+        # in this case the prior X is the unweighted mean because
+        # both sources of uncertainty (counts and normalization) 
+        # are based on the "true" values - so they end up equally
+        # weighted 
+        X = np.mean(D)
+        
+        V = np.array([
+            [X/n + (n_rel)*X**2, n_rel*X**2],
+            [n_rel*X**2, X/n + (n_rel)*X**2]
         ])
     else:
         raise NameError(f"Unknown sens_method value {sens_method}. Use exp or theo")
@@ -180,7 +200,6 @@ def method2a(r, dr, n, dn, verbose=False):
         uncertainties
 
 
-
     Returns
     -------
     np.array 
@@ -192,3 +211,38 @@ def method2a(r, dr, n, dn, verbose=False):
     """
 
     return method2(r, dr, n, dn, verbose=verbose, sens_method='theo')
+
+
+def method2b(r, dr, n, dn, verbose=False):
+    """ Function to calculate the Method 2b solution
+    
+    Parameters
+    ----------
+    r : list or np.array
+        measured data points
+
+    dr : list or np.array
+        uncertainty on measured data points
+
+    n : float
+        normalization constant value
+
+    dn : float
+        normalization constant uncertainty
+
+    verbose: bool, optional, default: False
+        whether or not to print the parameters and their
+        uncertainties
+
+
+    Returns
+    -------
+    np.array 
+        Fitted parameter values
+
+    np.array
+        Fitting parameter covariance matrix
+    
+    """
+
+    return method2(r, dr, n, dn, verbose=verbose, sens_method='theo', counts_method='theo')

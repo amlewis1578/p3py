@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 from p3py.sammy._utils import calc_m_plus_w
-from p3py.sammy import method1, method2, method2a
+from p3py.sammy import method1, method2, method2a, method2b
 
 @pytest.fixture()
 def small_unc_example():
@@ -74,3 +74,16 @@ def test_method2a_large(large_unc_example):
     p_prime, m_prime = method2a(r, dr, n, dn)
     assert np.isclose(p_prime[0,0], 109.50226244)
     assert np.isclose(m_prime[0,0], 120.45496611)
+
+def test_method2b_small(small_unc_example):
+    r, dr, n, dn = small_unc_example
+    p_prime, m_prime = method2b(r, dr, n, dn)
+    assert np.isclose(p_prime[0,0], 110.5)
+    assert np.isclose(m_prime[0,0], 0.85775625)
+
+
+def test_method2a_large(large_unc_example):
+    r, dr, n, dn = large_unc_example
+    p_prime, m_prime = method2b(r, dr, n, dn)
+    assert np.isclose(p_prime[0,0], 110.5)
+    assert np.isclose(m_prime[0,0], 122.655)
