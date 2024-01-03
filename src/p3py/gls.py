@@ -83,6 +83,11 @@ def get_gls_estimate(Y, V, X=None, verbose=False):
     Returns
     -------
     np.array 
+        The fitted parameter(s). Array has the same length
+        as the number of parameters, which is the number of 
+        columns in X
+
+    np.array 
         The uncertainty estimate. Array has the same length
         as the number of parameters, which is the number of 
         columns in X
