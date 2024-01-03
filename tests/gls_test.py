@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 from p3py.gls import get_gls_unc, get_gls_estimate
+from p3py.gls import  check_2x2_matrix_for_PPP
 
 @pytest.fixture
 def ds1():
@@ -62,3 +63,12 @@ def test_default_X(ds1):
     gls_est, gls_unc = get_gls_estimate(Y,V)
     assert np.isclose(gls_est, 0.88235294 )
     assert np.isclose(gls_unc, 0.21828206)
+
+
+def test_ppp_check(ds1):
+    print("here")
+    _, _, V, V_ind = ds1
+    print(V)
+
+    assert check_2x2_matrix_for_PPP(V)
+    assert not check_2x2_matrix_for_PPP(V_ind)

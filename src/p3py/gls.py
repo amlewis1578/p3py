@@ -137,3 +137,65 @@ def get_gls_estimate(Y, V, X=None, verbose=False):
     est = la.inv(X.T @ la.inv(V) @ X) @ X.T @ la.inv(V) @ Y
     
     return est, unc
+
+
+def check_2x2_matrix_for_PPP(V, verbose=True):
+    """ Function to test whether a 2x2 covariance matrix will produce a 
+    PPP result in GLS fitting.
+
+    Parameters
+    ----------
+    V : np.array 
+        2x2 covariance matrix
+
+    verbose : bool, optional, default: True
+        whether or not to print the values and the comparison
+    
+    Returns
+    -------
+    bool
+        whether or not PPP will occur with GLS fitting
+
+    Raises
+    ------
+    AssertionError
+        If the matrix is not 2x2
+    
+    Notes
+    -----
+    The criteria comes from Ref [1] Equation 10 - if the correlation 
+    coefficient is greater than the ratio of the smaller to the larger 
+    uncertainty, PPP will occur with GLS fitting.
+
+    [1] T. Burr, T. Kawano, P. Talou, F. Pan, and N. Hengartner, “Defense 
+        of the Least Squares Solution to Peelle's Pertinent Puzzle,” 
+        Algorithms, 4, 28-39 (2011) 10.3390/a4010028.
+
+
+    """
+
+    # make sure V is a numpy array and is 2x2
+    V = np.array(V)
+    try:
+        assert np.array_equal(V.shape, (2,2))
+    except AssertionError:
+        print("Error: Covariance matrix must be 2x2 for PPP testing.")
+        return None
+
+    # get sigma1 and sigma2 from the diagonal
+    sigma1, sigma2 = np.sqrt(np.diag(V))
+
+    # get the ratio of the smaller to the larger
+    ratio = min(sigma1/sigma2, sigma2/sigma1)
+
+    # get the corr coefficient from one of the off-diagonals
+    rho = V[0,1] / sigma1 / sigma2
+    
+    # if verbose mode, print the two values and the result
+    if verbose: 
+        print(f"rho: {rho}, ratio: {ratio}")
+        if rho > ratio: print("PPP")
+        else: print("no PPP")
+
+    # return True if PPP occurs
+    return rho > ratio
