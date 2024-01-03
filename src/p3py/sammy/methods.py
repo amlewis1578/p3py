@@ -123,9 +123,20 @@ def method2(r, dr, n, dn, verbose=False, sens_method='exp', counts_method='exp')
 
 
     
-    # the prior X is the method 1 solution
-    X,_ = method1(r, dr, n, dn)
-    X = X[0,0]
+    # the prior X is the method 1 solution if using experimental counts
+    if counts_method == 'exp':
+        X,_ = method1(r, dr, n, dn)
+        X = X[0,0]
+
+    elif counts_method == 'theo':
+        # in this case the prior X is the unweighted mean because
+        # the counting uncertainty is based on the "true" values, 
+        # so they end up equally weighted 
+        X = np.mean(D)
+
+
+    else:
+        raise NameError(f"Unknown counts_method value {counts_method}. Use exp or theo")
 
     # calc V based on sensitivity method
     if sens_method == 'exp':
@@ -141,12 +152,6 @@ def method2(r, dr, n, dn, verbose=False, sens_method='exp', counts_method='exp')
         ])
     # method 2b
     elif sens_method == 'theo' and counts_method == 'theo':
-        # in this case the prior X is the unweighted mean because
-        # both sources of uncertainty (counts and normalization) 
-        # are based on the "true" values - so they end up equally
-        # weighted 
-        X = np.mean(D)
-
         V = np.array([
             [X/n + (n_rel)*X**2, n_rel*X**2],
             [n_rel*X**2, X/n + (n_rel)*X**2]
