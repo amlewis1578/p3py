@@ -1,1 +1,1 @@
-from p3py.sammy.methods import method1, method2
+from p3py.sammy.methods import method1, method2, method2a

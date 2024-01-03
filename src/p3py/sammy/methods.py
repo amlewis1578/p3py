@@ -67,7 +67,7 @@ def method1(r, dr, n, dn, verbose=False):
 
     return P_prime, M_prime
 
-def method2(r, dr, n, dn, verbose=False):
+def method2(r, dr, n, dn, verbose=False, sens_method='exp'):
     """ Function to calculate the Method 2 solution
     
     Parameters
@@ -88,6 +88,12 @@ def method2(r, dr, n, dn, verbose=False):
         whether or not to print the parameters and their
         uncertainties
 
+    sens_method: str, optional, default: exp
+        how to calculate the senstivities - by experimental
+        values ("exp") or by theoretical values ("theo"). For 
+        Method 2, use the default "exp". For Method 2a or 2b,
+        use "theo"
+
     Returns
     -------
     np.array 
@@ -107,13 +113,26 @@ def method2(r, dr, n, dn, verbose=False):
     # V is given in the manual Eq.(IV D.5)
     dr_sq = np.array(dr)**2
     n_rel = dn**2/n**2
-    V = np.array([
-        [dr_sq[0]/n**2 + (n_rel)*D[0,0]**2, n_rel*D[0,0]*D[1,0]],
-        [n_rel*D[0,0]*D[1,0], dr_sq[1]/n**2 + (n_rel)*D[1,0]**2]
-    ])
+
+
     
-    # the prior X is the GLS estimate
-    X,_ = get_gls_estimate(D, V)
+    # the prior X is the method 1 solution
+    X,_ = method1(r, dr, n, dn)
+    X = X[0,0]
+
+    # calc V based on sensitivity method
+    if sens_method == 'exp':
+        V = np.array([
+            [dr_sq[0]/n**2 + (n_rel)*D[0,0]**2, n_rel*D[0,0]*D[1,0]],
+            [n_rel*D[0,0]*D[1,0], dr_sq[1]/n**2 + (n_rel)*D[1,0]**2]
+        ])
+    elif sens_method == 'theo':
+        V = np.array([
+            [dr_sq[0]/n**2 + (n_rel)*X**2, n_rel*X*X],
+            [n_rel*X*X, dr_sq[1]/n**2 + (n_rel)*X**2]
+        ])
+    else:
+        raise NameError(f"Unknown sens_method value {sens_method}. Use exp or theo")
 
     # the theoretical values are T = X, since X now 
     # incorporates n
@@ -136,3 +155,40 @@ def method2(r, dr, n, dn, verbose=False):
         print_parameters(P_prime, M_prime)
 
     return P_prime, M_prime
+
+
+
+def method2a(r, dr, n, dn, verbose=False):
+    """ Function to calculate the Method 2a solution
+    
+    Parameters
+    ----------
+    r : list or np.array
+        measured data points
+
+    dr : list or np.array
+        uncertainty on measured data points
+
+    n : float
+        normalization constant value
+
+    dn : float
+        normalization constant uncertainty
+
+    verbose: bool, optional, default: False
+        whether or not to print the parameters and their
+        uncertainties
+
+
+
+    Returns
+    -------
+    np.array 
+        Fitted parameter values
+
+    np.array
+        Fitting parameter covariance matrix
+    
+    """
+
+    return method2(r, dr, n, dn, verbose=verbose, sens_method='theo')
