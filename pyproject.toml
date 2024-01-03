@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [tool.setuptools.dynamic]
-version = {attr="ensdf_reader.__version__"}
+version = {attr="p3py.__version__"}
 
 [tools.setuptools.packages.find]
 namespaces = true
