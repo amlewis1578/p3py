@@ -50,3 +50,38 @@ unc
 ```
 array([[0.21828206]])
 ```
+
+
+### SAMMY
+
+The `sammy` module contains the equations for the Methods 1, 2, 2a, and 2b in the SAMMY manual for 2x2 matrices. 
+
+```python
+from p3py.sammy import method1, method2, method2a, method2b
+
+# set up small dn values
+r = np.array([10000,12100])
+dr = np.array([100,110])
+n = 100
+dn = 0.5
+
+p, m = method1(r, dr, n, dn, verbose=True)
+```
+
+```
+109.5023 +/- 0.9205
+
+100.0 +/- 0.5
+```
+
+```python
+p, m
+```
+```
+(array([[109.50226244],
+        [100.        ]]),
+ array([[ 0.84727995, -0.27375566],
+        [-0.27375566,  0.25      ]]))
+```
+
+Each of the functions `method1`, `method2`, `method2a`, and `method2b`, are called the same way.
